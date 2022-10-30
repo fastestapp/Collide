@@ -23,14 +23,12 @@ class Particle: Hashable, Equatable {
     var speed: Double
     // Radius
     var radius: Double = 0.005
-    var scale: Double
     
-    init(x: Double, y: Double, angle: Double, speed: Double, scale: Double) {
+    init(x: Double, y: Double, angle: Double, speed: Double) {
         self.x = x
         self.y = y
         self.angle = angle
         self.speed = speed
-        self.scale = scale
     }
     
     static func ==(lhs: Particle, rhs: Particle) -> Bool {

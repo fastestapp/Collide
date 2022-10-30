@@ -11,7 +11,7 @@
 import SwiftUI
 
 class ParticleSystem: ObservableObject {
-    var particleCount = 200
+    var particleCount = 20
     let image = Image("disk")
     var particles = Array<Particle>()
     var lastUpdate = Date()
@@ -30,10 +30,6 @@ class ParticleSystem: ObservableObject {
     
     var speed = 20.0
     var speedRange = 2.0
-    
-    var scale = 100.0
-    var scaleRange = 50.0
-    var scaleSpeed = 10.0
     
     func update(date: Date) {
         let elapsedTime = date.timeIntervalSince1970 - lastUpdate.timeIntervalSince1970
@@ -66,36 +62,8 @@ class ParticleSystem: ObservableObject {
             didInitialBounceCheck = true
         }
         
-//            if !didInitialQuadratic {
-//        for i in 0..<particles.count {
-//            for j in (i+1)..<particles.count {
-//                let p1 = particles[i]
-//                let p2 = particles[j]
-//                let timeToHit = p1.timeUntilParticleCollision(p2)
-//                if let timeToHit = timeToHit, timeToHit > 0 {
-//                    let updateSecondsFromNow = Date.timeIntervalSinceReferenceDate + timeToHit
-//                    let updateDate = Date(timeIntervalSinceReferenceDate: updateSecondsFromNow)
-//                    let particleUpdateEvent = ParticleUpdateEvent(P1: p1, P2: p2, updateTime: updateDate)
-//                    priorityQueue.insert(x: particleUpdateEvent)
-//                }
-//            }
-//        }
-//            }
-        
         // Update events from the PriorityQueue.
         priorityQueue.runPriorityQueue()
-    }
-    
-    func checkCollisions() -> Bool {
-        return false
-    }
-    
-    func reverseAngle(_ angle: Double, _ verticalWall: Bool) -> Double {
-        if verticalWall {
-            return .pi - angle
-        } else {
-            return (3/2 * .pi) - (angle - (.pi / 2))
-        }
     }
     
     private func createParticle() -> Particle {
@@ -106,8 +74,7 @@ class ParticleSystem: ObservableObject {
             x: Double.random(in: 0...1),
             y: Double.random(in: 0...1),
             angle: angleRadians,
-            speed: 20, //speed + Double.random(in: -speedRange / 2...speedRange / 2),
-            scale: scale / 100 + Double.random(in: -scaleRange / 200...scaleRange / 200)
+            speed: 20 //speed + Double.random(in: -speedRange / 2...speedRange / 2),
         )
     }
     

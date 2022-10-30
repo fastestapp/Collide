@@ -12,15 +12,15 @@ class PriorityQueue {
     
     static let shared = PriorityQueue()
     var PQ = [ParticleUpdateEvent]()
-    let maxPQSize = 200
+    let maxPQSize = 20
     
     // Add a new value to the Priority Queue and delete the maximum value if the size of the Priority Queue exceeds the max.
     // This amounts to deleting the updateEvent that is the furthest away from now to occur:
     public func insert<T: Comparable>(x: T) where T: ParticleUpdateEvent {
         if PQ.count == 0 {
             // Make a placeholder update event for index zero; something we must do because Priority Queues start at index 1:
-            let p1 = Particle.init(x: -1, y: -1, angle: 0, speed: 0, scale: 0)
-            let p2 = Particle.init(x: -1, y: -1, angle: 0, speed: 0, scale: 0)
+            let p1 = Particle.init(x: -1, y: -1, angle: 0, speed: 0)
+            let p2 = Particle.init(x: -1, y: -1, angle: 0, speed: 0)
             PQ.append(ParticleUpdateEvent.init(P1: p1, P2: p2, updateTime: Date()))
         }
         
