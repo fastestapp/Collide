@@ -17,30 +17,28 @@ class ParticleSystem: ObservableObject {
     var lastUpdate = Date()
     var lastCreationDate = Date()
     var priorityQueue = PriorityQueue.shared
-    var didInitialQuadratic = false
     var didInitialBounceCheck = false
     
     var xPosition = 50.0
     var yPosition = 0.0
-    var xPositionRange = 100.0
-    var yPositionRange = 0.0
     
     var angle = 80.0
     var angleRange = 180.0
     
     var speed = 20.0
-    var speedRange = 2.0
     
     func update(date: Date) {
         let elapsedTime = date.timeIntervalSince1970 - lastUpdate.timeIntervalSince1970
         lastUpdate = date
         
-        // Create the particles or add them to maintain. However, if it's working, none should get lost:
+        // Create the particles.
         while particles.count < particleCount {
             particles.append(createParticle())
             lastCreationDate = date
         }
         
+        // After all the particles are created, go through the initial n-squared algorithm to predict the initial paths.
+        // Do this once. And after that, only get the path of a particle that has just collided.
         if particles.count == particleCount {
             for particle in particles {
                 if !didInitialBounceCheck {
@@ -74,7 +72,7 @@ class ParticleSystem: ObservableObject {
             x: Double.random(in: 0...1),
             y: Double.random(in: 0...1),
             angle: angleRadians,
-            speed: 20 //speed + Double.random(in: -speedRange / 2...speedRange / 2),
+            speed: 20
         )
     }
     

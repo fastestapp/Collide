@@ -43,10 +43,8 @@ class Particle: Hashable, Equatable {
     func timeUntilVertWallCollision() -> Double {
         let width = UIScreen.main.bounds.width
         let xPosition = self.x
-        
         let pixelsFromLeft = xPosition * width
         let distanceFromRight = width - (xPosition * width)
-        // The actual velocity depends on the screen size, right?
         let xVelocity = abs(xVelocity(self.speed, self.angle))
         
         // going right:
@@ -66,7 +64,8 @@ class Particle: Hashable, Equatable {
         let distanceFromTop = yPosition * height
         let distanceFromBottom = height - (yPosition * height)
         let yVelocity = abs(yVelocity(self.speed, self.angle))
-        // First, going down:
+        
+        // going down:
         if (self.angle > 0 && self.angle < .pi) {
             return (distanceFromBottom) / (yVelocity * 12)
         } else {
@@ -75,51 +74,9 @@ class Particle: Hashable, Equatable {
         }
     }
     
-    func timeUntilParticleCollision(_ particle: Particle) -> Double? {
-        // The distance between the two particles at the start, in terms of x and y:
-        let xDist = particle.x - self.x
-        let yDist = particle.y - self.y
-
-        // The difference in speeds between the two particles, in terms of x and y:
-        let xVeloDiff = xVelocity(particle.speed, particle.angle) - xVelocity(self.speed, self.angle)
-        let yVeloDiff = xVelocity(particle.speed, particle.angle) - xVelocity(self.speed, self.angle)
-        
-        let netVector = xDist * xVeloDiff + yDist * yVeloDiff
-
-        if netVector > 0 {
-            return -1
-        }
-        
-        let sumOfVelocitiesSquared = (xVeloDiff * xVeloDiff) + (yVeloDiff * yVeloDiff)
-        let sumOfDistancesSquared = (xDist * xDist) + (yDist * yDist)
-    
-        _ = calculateRadius()
-
-        let twoRadiuses = 2 * 0.03
-        let d = (netVector * netVector) - sumOfVelocitiesSquared * (sumOfDistancesSquared - twoRadiuses * twoRadiuses)
-        
-        if d < 0 {
-            return -1
-        }
-        
-        let collision = (netVector + sqrt(d)) / sumOfVelocitiesSquared
-
-        if collision > 0 {
-            return collision
-        }
-        return nil
-    }
-    
-    func calculateRadius() -> Double {
-        let screenPixels = UIScreen.main.bounds.size.width
-        let pictureWidth = 40.0
-        return pictureWidth / screenPixels
-    }
-
     func yVelocity(_ speed: Double, _ radians: Double) -> Double {
         var yVelocity: Double = 0
-        // The cos of 80 degrees is 0.1736
-        // going down:
+        
         if ( (radians > 0)  && (radians < .pi) ) {
             yVelocity = sin(radians) * speed
         } else {
@@ -131,7 +88,7 @@ class Particle: Hashable, Equatable {
     
     func xVelocity(_ speed: Double, _ radians: Double) -> Double {
         var xVelocity: Double = 0
-        // going down:
+        
         if ( (radians > (1.5 * .pi))  && (radians <= (2.0 * .pi)) ) ||
             ( (radians >= 0) && (radians < (0.5 * .pi)) ) {
             xVelocity = cos(radians) * speed

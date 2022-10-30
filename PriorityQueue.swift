@@ -14,8 +14,7 @@ class PriorityQueue {
     var PQ = [ParticleUpdateEvent]()
     let maxPQSize = 20
     
-    // Add a new value to the Priority Queue and delete the maximum value if the size of the Priority Queue exceeds the max.
-    // This amounts to deleting the updateEvent that is the furthest away from now to occur:
+    // Add a new value to the Priority Queue and delete the maximum value if the size of the Priority Queue exceeds the max:
     public func insert<T: Comparable>(x: T) where T: ParticleUpdateEvent {
         if PQ.count == 0 {
             // Make a placeholder update event for index zero; something we must do because Priority Queues start at index 1:
@@ -33,7 +32,7 @@ class PriorityQueue {
         }
     }
     
-    // If there's already an event in the queue with the particle in question, and the existing event will occur sooner, then it's a preexisting event, and return true
+    // If there's already an event in the queue containing the particle in question, and the existing event will occur sooner, then it's a preexisting event, and return true
     private func checkPreexisting(x: ParticleUpdateEvent) -> Bool {
         for (index, event) in PQ.enumerated() {
             if x.p2 != nil && (event.p1 == x.p2 || event.p2 == x.p2 ) {
@@ -114,31 +113,17 @@ class PriorityQueue {
         return a
     }
     
-    public func exchangeWithEnd(a1: [ParticleUpdateEvent], s1: Int) -> [ParticleUpdateEvent] {
-        var a = a1
-        let temp = a[s1]
-        a[s1] = a[a.count - 1]
-        a[a.count - 1] = temp
-        return a
-    }
-    
-    var counter = 0
-    
     func reverseAngleHWall(_ angle: Double) -> Double {
         var revAngle: Double = 0.0
         if angle >= 1.5 * .pi {
             revAngle = (2 * .pi)  - angle
-            counter += 1
         } else if angle >= .pi {
             // going up and left
             revAngle = ((1.5 * .pi) - angle) + (0.5 * .pi)
-            counter += 1
         } else if angle >= 0.5 * .pi {
             revAngle = (1.5 * .pi) - (angle - (0.5 * .pi))
-            counter += 1
         } else if angle >= 0 {
             revAngle = (2 * .pi) - angle
-            counter += 1
         }
         return revAngle
     }
@@ -147,16 +132,12 @@ class PriorityQueue {
         var revAngle: Double = 0.0
         if angle >= 1.5 * .pi {
             revAngle = (1.5 * .pi) - (angle - (1.5 * .pi))
-            counter += 1
         } else if angle >= .pi {
             revAngle = (1.5 * .pi) + ((1.5 * .pi) - angle)
-            counter += 1
         } else if angle >= 0.5 * .pi {
             revAngle = (0.5 * .pi) - (angle - (0.5 * .pi))
-            counter += 1
         } else if angle >= 0 {
             revAngle = (0.5 * .pi) + ((0.5 * .pi) - angle)
-            counter += 1
         }
         return revAngle
     }
@@ -178,7 +159,7 @@ class PriorityQueue {
             } else if updateEvent.updateTime <= Date() && updateEvent.p2 != nil{
                 // This is a two particle collision event
                 updateEvent.p1.angle = reverseAngleVWall(updateEvent.p1.angle)
-                if var p2 = updateEvent.p2 {
+                if let p2 = updateEvent.p2 {
                     p2.angle = reverseAngleVWall(p2.angle)
                 }
                 PQ = deleteMinimum(PQ)
@@ -188,10 +169,9 @@ class PriorityQueue {
         }
     }
     
-    public func evaluateNextWallCollision(_ particle: Particle) -> Double {
-        
+    public func evaluateNextWallCollision(_ particle: Particle) {
         // First, check to see if it's already past the boundary and then reverse angle and calculate:
-        var xPosition = particle.x
+        let xPosition = particle.x
         if xPosition > 0.99 {
             particle.x = 0.99
             particle.angle = reverseAngleVWall(particle.angle)
@@ -211,7 +191,6 @@ class PriorityQueue {
             let particleUpdateEvent = ParticleUpdateEvent(P1: particle, P2: nil, updateTime: updateDate)
             self.insert(x: particleUpdateEvent)
         }
-        return timeToHit
     }
 }
 
