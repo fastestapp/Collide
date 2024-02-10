@@ -16,8 +16,12 @@ struct PriorityQueueCount: View {
     
     var body: some View {
         TimelineView(.animation) { timeline in
-                Text("Priority Queue Count: \(queue.PQ.count)")
-                .frame(width: 200, height: 50)
+                VStack {
+                    Text("Priority Queue Count: \(queue.PQ.count)")
+                    .frame(width: 200, height: 50)
+                    Text("Priority Queue Insertion Count: \(queue.insertionCount)")
+                    .frame(width: 200, height: 50)
+                }
             }
             
         

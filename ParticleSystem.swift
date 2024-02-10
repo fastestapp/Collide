@@ -48,7 +48,7 @@ class ParticleSystem: ObservableObject {
                 let timeToHit = (hTime < vTime) ? hTime : vTime
                 if timeToHit > 0 {
                     let updateDate = Date() + timeToHit
-                    print("updateDate: \(updateDate.timeIntervalSince1970)")
+//                    print("updateDate: \(updateDate.timeIntervalSince1970)")
                     let particleUpdateEvent = ParticleUpdateEvent(P1: particle, P2: nil, updateTime: updateDate)
                     priorityQueue.insert(x: particleUpdateEvent)
                 }

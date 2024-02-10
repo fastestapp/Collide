@@ -65,7 +65,7 @@ class Particle: Hashable, Equatable {
         }
         
         let trueTime = abs(actualDistance) / actualVelocity
-        print("truetime v: \(trueTime)")
+//        print("truetime v: \(trueTime)")
         return trueTime
     }
     
@@ -97,7 +97,7 @@ class Particle: Hashable, Equatable {
         }
         let trueTime = abs(actualDistance) / actualVelocity
 
-        print("truetime h: \(trueTime)")
+//        print("truetime h: \(trueTime)")
         return trueTime
     }
     

@@ -13,6 +13,7 @@ import Combine
 class PriorityQueue: ObservableObject {
     static let shared = PriorityQueue()
     var PQ = [ParticleUpdateEvent]()
+    var insertionCount = 0
     let maxPQSize = 20
     
     // Add a new value to the Priority Queue and delete the maximum value if the size of the Priority Queue exceeds the max:
@@ -31,6 +32,7 @@ class PriorityQueue: ObservableObject {
                 PQ = deleteMaximum(PQ)
             }
         }
+        insertionCount += 1
     }
     
     // If there's already an event in the queue containing the particle in question, and the existing event will occur sooner, then it's a preexisting event, and return true
@@ -45,7 +47,7 @@ class PriorityQueue: ObservableObject {
                 }
             } else if event.p1 == x.p1 {
                 if event.updateTime < x.updateTime {
-                    print("times: \(event.updateTime.timeIntervalSinceReferenceDate) and \(x.updateTime.timeIntervalSinceReferenceDate)")
+//                    print("times: \(event.updateTime.timeIntervalSinceReferenceDate) and \(x.updateTime.timeIntervalSinceReferenceDate)")
                     return true
                 } else {
                     PQ.remove(at: index)
@@ -196,8 +198,6 @@ class PriorityQueue: ObservableObject {
         let hTime = particle.timeUntilVertWallCollision()
         let vTime = particle.timeUntilHorizWallCollision()
 
-        print("hTime2: \(hTime)")
-        print("vTime2: \(vTime)")
         let timeToHit = (hTime < vTime) ? hTime : vTime
         if timeToHit > 0 {
             let updateDate = Date() + timeToHit
