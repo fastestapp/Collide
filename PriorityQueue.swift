@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import UIKit
+import Combine
 
-class PriorityQueue {
-    
+class PriorityQueue: ObservableObject {
     static let shared = PriorityQueue()
     var PQ = [ParticleUpdateEvent]()
     let maxPQSize = 20
@@ -18,8 +19,8 @@ class PriorityQueue {
     public func insert<T: Comparable>(x: T) where T: ParticleUpdateEvent {
         if PQ.count == 0 {
             // Make a placeholder update event for index zero; something we must do because Priority Queues start at index 1:
-            let p1 = Particle.init(x: -1, y: -1, angle: 0, speed: 0)
-            let p2 = Particle.init(x: -1, y: -1, angle: 0, speed: 0)
+            let p1 = Particle.init(angle: 0, speed: 0, xCoord: 0, yCoord: 0)
+            let p2 = Particle.init(angle: 0, speed: 0, xCoord: 0, yCoord: 0)
             PQ.append(ParticleUpdateEvent.init(P1: p1, P2: p2, updateTime: Date()))
         }
         
@@ -113,7 +114,7 @@ class PriorityQueue {
         return a
     }
     
-    func reverseAngleHWall(_ angle: Double) -> Double {
+    public func reverseAngleHWall(_ angle: Double) -> Double {
         var revAngle: Double = 0.0
         if angle >= 1.5 * .pi {
             revAngle = (2 * .pi)  - angle
@@ -128,7 +129,7 @@ class PriorityQueue {
         return revAngle
     }
     
-    func reverseAngleVWall(_ angle: Double) -> Double {
+    public func reverseAngleVWall(_ angle: Double) -> Double {
         var revAngle: Double = 0.0
         if angle >= 1.5 * .pi {
             revAngle = (1.5 * .pi) - (angle - (1.5 * .pi))
@@ -142,13 +143,26 @@ class PriorityQueue {
         return revAngle
     }
     
+    var startingDate: Date?
+    
     public func runPriorityQueue() {
         var done: Bool = false
+        
+        if startingDate == nil {
+            startingDate = Date()
+        }
+        
         while !done && PQ.count > 1 {
             let updateEvent = PQ[PQ.count - 1]
+            
+//            print("date: \(Date().timeIntervalSince1970)")
+            // We are checking this priority queue for events that are scheduled to occur on or before the current time;
+            // And we are checking it about 50 times a second 
+            // The Priority Queue is never very long, so we CHECK this many times a second, but we ENTER the code much less often. 
             if updateEvent.updateTime <= Date() && updateEvent.p2 == nil {
-                // This is a wall event
-                if updateEvent.p1.y > 0.95 || updateEvent.p1.y < 0.05 {
+                // This is a wall event, so we will hit the wall and then reverse angle while keeping the velocity the same
+                if (updateEvent.p1.yCoord > (UIScreen.main.bounds.height - 10) ) ||
+                    (updateEvent.p1.yCoord < 10) {
                     updateEvent.p1.angle = reverseAngleHWall(updateEvent.p1.angle)
                 } else {
                     updateEvent.p1.angle = reverseAngleVWall(updateEvent.p1.angle)
@@ -171,23 +185,22 @@ class PriorityQueue {
     
     public func evaluateNextWallCollision(_ particle: Particle) {
         // First, check to see if it's already past the boundary and then reverse angle and calculate:
-        let xPosition = particle.x
-        if xPosition > 0.99 {
-            particle.x = 0.99
-            particle.angle = reverseAngleVWall(particle.angle)
-        }
-        if xPosition < 0.003 {
-            particle.x = 0.003
-            particle.angle = reverseAngleVWall(particle.angle)
-        }
+        let xCoor = particle.xCoord
         
+        if xCoor >  UIScreen.main.bounds.width {
+            particle.xCoord = UIScreen.main.bounds.width
+        }
+        else if xCoor < 0 {
+            particle.xCoord = 0.003
+        }
         let hTime = particle.timeUntilVertWallCollision()
         let vTime = particle.timeUntilHorizWallCollision()
 
-        let timeToHit = (hTime < vTime ? hTime : vTime)
+        print("hTime2: \(hTime)")
+        print("vTime2: \(vTime)")
+        let timeToHit = (hTime < vTime) ? hTime : vTime
         if timeToHit > 0 {
-            let updateSecondsFromNow = Date.timeIntervalSinceReferenceDate + timeToHit
-            let updateDate = Date(timeIntervalSinceReferenceDate: updateSecondsFromNow)
+            let updateDate = Date() + timeToHit
             let particleUpdateEvent = ParticleUpdateEvent(P1: particle, P2: nil, updateTime: updateDate)
             self.insert(x: particleUpdateEvent)
         }

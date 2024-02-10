@@ -16,20 +16,47 @@ struct CollisionsView: View {
     var particleSystem: ParticleSystem
     
     var body: some View {
-        TimelineView(.animation) { timeline in
-            Canvas { context, size in
-                particleSystem.update(date: timeline.date)
-                let baseTransform = context.transform
-                
-                for particle in particleSystem.particles {
-                    let xPos = particle.x * size.width
-                    let yPos = particle.y * size.height
-                    
-                    context.translateBy(x: xPos, y: yPos)
-                    context.draw(particleSystem.image, at: .zero)
-                    context.transform = baseTransform
+        ZStack {
+            Color(.blue)
+            TimelineView(.animation) { timeline in
+                Canvas { context, size in
+                    particleSystem.update(date: timeline.date)
+                    let baseTransform = context.transform
+                    for particle in particleSystem.particles {
+                        context.translateBy(x: particle.xCoord, y: particle.yCoord)
+                        context.draw(particleSystem.image, at: .zero)
+                        context.transform = baseTransform
+                    }
+                }
+                .background(Color.purple)
+            }
+//            TimerView()
+            PriorityQueueCount()
+        }
+    }
+}
+
+struct TimerView: View {
+    @State var isTimerRunning = false
+    @State private var startTime =  Date()
+    @State private var timerString = "0.00"
+    let timer = Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()
+    
+    var body: some View {
+        
+        Text(self.timerString)
+            .font(Font.system(.largeTitle, design: .monospaced))
+            .onReceive(timer) { _ in
+                if self.isTimerRunning {
+                    timerString = String(format: "%.2f", (Date().timeIntervalSince( self.startTime)))
                 }
             }
-        }
+            .onAppear {
+                if !isTimerRunning {
+                    timerString = "0.00"
+                    startTime = Date()
+                }
+                isTimerRunning.toggle()
+            }
     }
 }

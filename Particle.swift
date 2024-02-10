@@ -15,18 +15,19 @@ class Particle: Hashable, Equatable {
     let id = UUID()
     
     // Position
-    var x: Double
-    var y: Double
+    var xCoord: Double
+    var yCoord: Double
     // Direction, in radians. With 0/2.pi pointing to the right.
     var angle: Double
     // Velocity
     var speed: Double
     // Radius
-    var radius: Double = 0.005
+    var radius: Double = 0.001
     
-    init(x: Double, y: Double, angle: Double, speed: Double) {
-        self.x = x
-        self.y = y
+    
+    init(angle: Double, speed: Double, xCoord: Double, yCoord: Double) {
+        self.xCoord = xCoord
+        self.yCoord = yCoord
         self.angle = angle
         self.speed = speed
     }
@@ -38,63 +39,66 @@ class Particle: Hashable, Equatable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
-    
+    var counter = 0
     // find the time the self particle will collide with the wall.
     func timeUntilVertWallCollision() -> Double {
         let width = UIScreen.main.bounds.width
-        let xPosition = self.x
-        let pixelsFromLeft = xPosition * width
-        let distanceFromRight = width - (xPosition * width)
-        let xVelocity = abs(xVelocity(self.speed, self.angle))
-        
+        let distanceToRight = width - xCoord
+        let distanceToLeft = xCoord
+
+        var actualDistance = 0.0
+        let actualVelocity = self.speed
         // going right:
-        if ( self.angle > (1.5 * .pi) && self.angle <= (2 * .pi) ) ||
-            ( self.angle >= 0 && self.angle < (0.5 * .pi) ) {
-            return distanceFromRight / (xVelocity * 8.4)
-        } else {
-            // going left:
-            return -(1 - pixelsFromLeft) / (xVelocity * 8.4)
+        if ( self.angle >= (1.5 * .pi) && self.angle <= (2 * .pi) ) {
+            // going right and up:
+            actualDistance = distanceToRight / cos((2 * .pi) - self.angle)
+        } else if ( self.angle >= 0 && self.angle < (0.5 * .pi) ) {
+            // going right and down:
+            // cosine of the angle = adjacent / hypotenuse. hyp = adj / cos(angle)
+            actualDistance = distanceToRight / cos(self.angle)
+        } else if ( self.angle >= (0.5 * .pi) && self.angle <= (.pi) ) {
+            // going left and down:
+            actualDistance = distanceToLeft / cos(.pi - self.angle)
+        } else if ( self.angle >= (.pi) && self.angle <= (1.5 * .pi) ) {
+            // going left and up:
+            actualDistance = distanceToLeft / cos(self.angle - .pi)
         }
+        
+        let trueTime = abs(actualDistance) / actualVelocity
+        print("truetime v: \(trueTime)")
+        return trueTime
     }
     
     // find the time the self self will collide with the wall.
     func timeUntilHorizWallCollision() -> Double {
         let height = UIScreen.main.bounds.height
-        let yPosition = self.y
-        let distanceFromTop = yPosition * height
-        let distanceFromBottom = height - (yPosition * height)
-        let yVelocity = abs(yVelocity(self.speed, self.angle))
+        let distanceToBottom = height - yCoord
+        let distanceToTop = yCoord
         
+        if self.angle == 0 || self.angle == .pi || self.angle == (2 * .pi) {
+            return Double.greatestFiniteMagnitude
+        }
+
+        var actualDistance = 0.0
+        let actualVelocity = self.speed
         // going down:
-        if (self.angle > 0 && self.angle < .pi) {
-            return (distanceFromBottom) / (yVelocity * 12)
-        } else {
-            // going up:
-            return distanceFromTop / (yVelocity * 12)
+        if ( self.angle >= (1.5 * .pi) && self.angle <= (2 * .pi) ) {
+            // going right and up:
+            actualDistance = distanceToTop / cos((.pi / 2) - (2 * .pi - self.angle))
+        } else if ( self.angle >= 0 && self.angle < (0.5 * .pi) ) {
+            // going right and down:
+            actualDistance = distanceToBottom / cos((.pi/2) - self.angle)
+        } else if ( self.angle >= (0.5 * .pi) && self.angle <= (.pi) ) {
+            // going left and down:
+            actualDistance = distanceToBottom / cos(self.angle - (.pi / 2))
+        } else if ( self.angle >= (.pi) && self.angle <= (1.5 * .pi) ) {
+            // going left and up:
+            actualDistance = distanceToTop / cos( (.pi / 2) - (self.angle - .pi) )
         }
+        let trueTime = abs(actualDistance) / actualVelocity
+
+        print("truetime h: \(trueTime)")
+        return trueTime
     }
     
-    func yVelocity(_ speed: Double, _ radians: Double) -> Double {
-        var yVelocity: Double = 0
-        
-        if ( (radians > 0)  && (radians < .pi) ) {
-            yVelocity = sin(radians) * speed
-        } else {
-            yVelocity = -1 * sin(radians) * speed
-        }
-        
-        return yVelocity
-    }
-    
-    func xVelocity(_ speed: Double, _ radians: Double) -> Double {
-        var xVelocity: Double = 0
-        
-        if ( (radians > (1.5 * .pi))  && (radians <= (2.0 * .pi)) ) ||
-            ( (radians >= 0) && (radians < (0.5 * .pi)) ) {
-            xVelocity = cos(radians) * speed
-        } else if ( radians > (0.5 * .pi)  && (radians < (2.0 * .pi)) ) {
-            xVelocity = -1 * cos(radians) * speed
-        }
-        return xVelocity
-    }
 }
