@@ -17,10 +17,15 @@ struct PriorityQueueCount: View {
     var body: some View {
         TimelineView(.animation) { timeline in
                 VStack {
-                    Text("Priority Queue Count: \(queue.PQ.count)")
-                    .frame(width: 200, height: 50)
-                    Text("Priority Queue Insertion Count: \(queue.insertionCount)")
-                    .frame(width: 200, height: 50)
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Text("Priority Queue Count: \(queue.PQ.count)")
+                        .frame(width: 200, height: 50)
+                        Text("Insertion Count: \(queue.insertionCount)")
+                        .frame(width: 300, height: 50)
+                    }
+                    .foregroundColor(.yellow)
                 }
             }
             
@@ -28,6 +33,6 @@ struct PriorityQueueCount: View {
     }
 }
 
-#Preview {
-    PriorityQueueCount()
-}
+//#Preview {
+//    PriorityQueueCount()
+//}

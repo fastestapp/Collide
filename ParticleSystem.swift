@@ -11,30 +11,23 @@
 import SwiftUI
 
 class ParticleSystem: ObservableObject {
-    var particleCount = 20
-    let image = Image("disk")
-    var particles = Array<Particle>()
-    var lastUpdate = Date()
-    var lastCreationDate = Date()
     var priorityQueue = PriorityQueue.shared
+    var particles = Array<Particle>()
+    
+    var particleCount = 20
+    let image = Image("ball")
+    var lastContextUpdate = Date()
+    var particleCreationDate = Date()
     var didInitialCheck = false
     
-    var xPosition = 50.0
-    var yPosition = 0.0
-    
-    var angle = 80.0
-    var angleRange = 180.0
-    
-    var speed = 200.0
-    
     func update(date: Date) {
-        let elapsedTime = date.timeIntervalSince1970 - lastUpdate.timeIntervalSince1970
-        lastUpdate = date
+        let timeBetweenContextUpdates = date.timeIntervalSince1970 - lastContextUpdate.timeIntervalSince1970
+        lastContextUpdate = date
         
         // Create the particles.
         while particles.count < particleCount {
             particles.append(createParticle())
-            lastCreationDate = date
+            particleCreationDate = date
         }
         
         // Here's where we add a small amount of x and y distance to the position of each particle
@@ -48,13 +41,12 @@ class ParticleSystem: ObservableObject {
                 let timeToHit = (hTime < vTime) ? hTime : vTime
                 if timeToHit > 0 {
                     let updateDate = Date() + timeToHit
-//                    print("updateDate: \(updateDate.timeIntervalSince1970)")
                     let particleUpdateEvent = ParticleUpdateEvent(P1: particle, P2: nil, updateTime: updateDate)
                     priorityQueue.insert(x: particleUpdateEvent)
                 }
             }
-            particle.xCoord += cos(particle.angle) * particle.speed  * elapsedTime
-            particle.yCoord += sin(particle.angle) * particle.speed  * elapsedTime
+            particle.x += cos(particle.angle) * particle.speed  * timeBetweenContextUpdates
+            particle.y += sin(particle.angle) * particle.speed  * timeBetweenContextUpdates
         }
         
         didInitialCheck = true
@@ -63,18 +55,16 @@ class ParticleSystem: ObservableObject {
         priorityQueue.runPriorityQueue()
     }
     
+    // Create particles with angles and positions randomized to a small range of values
     private func createParticle() -> Particle {
-        let angleDegrees = Double.random(in: 0...90) //+ Double.random(in: -angleRange / 2...angleRange / 2)
+        let angleDegrees = Double.random(in: 0...90)
         let angleRadians = angleDegrees * .pi / 180
         
         return Particle (
             angle: angleRadians,
-//            angle: 0.3,
             speed: 300,
             xCoord: Double.random(in: 0...100),
             yCoord: Double.random(in: 0...80)
-            //            xCoord: 20,
-            //            yCoord: 0
         )
     }
     
